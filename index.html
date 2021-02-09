@@ -1,0 +1,825 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON - TABLE Tools</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+    <script type="text/javascript" src="js/date.js"></script>
+    <script type="text/javascript" src="js/matrix.js"></script>
+    <script type="text/javascript" src="js/tableToExcel_fun.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js"></script>
+    <script>  $(function(){ new ClipboardJS('.clipboardBtn');  }); </script>    
+    <style id="css1">
+        /*공통*/
+        ::-webkit-scrollbar { width: 10px; height:10px; margin-right: 8px; margin-bottom: 8px;}
+        ::-webkit-scrollbar-track{background:#f1f1f1;}
+        ::-webkit-scrollbar-thumb{background:#888;}
+        ::-webkit-scrollbar-thumb:hover{background:#555;}
+
+        table { border-collapse: collapse; background-color: #fff; word-break: keep-all;}
+        table tr.header {background-color: #ccc; cursor: initial; } 
+        /* table tr.header {user-select: none;}  */
+        table tr.header td { position: sticky; top: -1px; background-color: #ccc;}
+        table tr.header td:hover {background-color: #ddd;}
+        table td {padding: 5px; border: 1px solid #000; vertical-align: top;}
+		table tr:hover {background: #aeffce;}
+
+        label { cursor: pointer;}
+        input[type="file"] { background: #9a9a9a; color:#fff; cursor: pointer; margin: 1px -2px;}
+        input[type=number] { width: 60px; }
+        input {height: 18px; vertical-align: middle;}
+        input[type="radio"] { vertical-align: text-bottom;}
+        select{ height:24px; }
+
+        /* .header {background-color: #ccc; cursor: initial;} */
+        .change {background-color: yellow;}
+        .checked {/*border: 2px solid red;*/ background-color: yellow; }
+        .select {background-color: #abeaab;}
+        .selectCol {background-color: #ffed15;}
+        .header .select {background-color:#4ab04a;}
+
+		.hide {display: none;}
+
+        button { vertical-align: middle; line-height: 18px;  cursor: pointer;}
+        button.active {background: #2bdd46;}
+        .show {display: block!important;}
+        td.modify:not([title='']) { background-color: #f9cfff; font-weight: bold;}
+        td.modify[title=''] {background: #d4edff;}
+        td.select.modify:not([title='']) { background-color: #53ae58; font-weight: bold;}
+        td.select.modify[title=''] {background: #68d168;}
+        td.select.modify:not([title]) {background-color:#d8fad8;}
+        td.stopModify {background:#eee;}
+        td.modify.stopModify {background:#ddd;}
+        td[sort=asc]:after { content: "▲"; padding-left: 3px; font-size: 12px; color:#888; }
+        td[sort=desc]:after { content: "▼"; padding-left: 3px; font-size: 12px; color:#888; }
+
+        .float-right {float: right;}
+        .dropdown-content {display:block;}
+        .stopModify.select {background: #68d168;}
+
+        tr.new { background: #feffa5; }
+        tr.new td {-webkit-user-modify: read-write;}
+        tr.new td:nth-of-type(1) {-webkit-user-modify: unset; background: #ddd;}
+        tr.del td {text-decoration-line: line-through; background: #ffdede; background: #ffbdbd;}
+        tr.new.mod td:nth-of-type(1)::after {content: "x"; width: 100%; display: inline-block; text-align: center;}
+        tr.new.mod td:nth-of-type(1):hover {font-weight:bold;}
+
+	#wrapper {display:flex;flex-direction: column;}
+    #inputGroup {display: inline-block;}
+	#project >div {display:none;}
+	/* #project >div.show {display:block;} */
+    #inputGroup b { min-width: 230px; display: inline-block;}
+    #inputGroup label {display:block;}
+	#inputGroup label:hover {background:#f2f2f2;}
+    #resultBox { width: 100%; border: 1px solid #777;background: #fff; overflow-y: auto; min-width: 350px; resize: vertical; max-height: 60vh;}
+    #resultBox table { width: max-content;font-size: 12px; color:#000;}
+    #resultBox td span { font-size: 12px !important;}
+    /* #resultBox td {-webkit-user-modify: read-write;} */
+    #resultBox td.select { -webkit-user-modify: read-write; background: #f9ffc0;}
+    #resultBox td.active {background-color: #ff4747 !important; color: #fff; font-weight: bold;  -webkit-user-modify: read-write; }
+	/* #inputGroup .shareInput label {display:inline-block;} */
+    /* #sendBtn {float:right;} */
+
+    /* #resultBox .header.empty {}
+    #resultBox .header.empty td{background-color: yellow;border:none;} */
+    #resultBox .one_array td {background: #abe4ff;}
+    #resultBox .list_array td {background: #46c3ff;}
+    #resultBox .one_object td {background: #e9dbff;}
+    #resultBox .list_object td {background: #d0b2ff;}
+    #resultBox table tr:hover {background: #f7ffb9;}
+    #resultBox tr.data td[title=undefined] {background: #ddd; color: #777;}
+
+    #jsonInput { height: calc( 100vh - 60vh - 54px );}
+    #table2jsonBtn {float: right}
+    </style>
+
+
+
+</head>
+<body>
+
+	<div id="wrapper">
+        <!-- <textarea id="jsonInput">[]</textarea> -->
+		<textarea id="jsonInput">
+{
+    "TEST DATA": {
+        "EXPIRE_DATE":"",
+        "QUANTITY_INFO": {
+            "시간당 연속 오류 제한 건수" : "0/30",
+            " 1시간 허용량" : "3/6000",
+            " 1일 허용량" : "4/10000"
+        },
+    
+        "arr": [1,2],
+        "arrarr2": [1,[1,2]],
+        "arrarr3": [[1,2],2],
+        "list_arr": [[1,2],["3","4","asdf"]],
+        "list_obj": [{"aa":"aaaa"},{"bb":"bbbb"}],
+        "arrao": [[1,2],{"aa":"aaaa"}],
+        "arrao2": [1,[1,2],{"aa":"aaaa"}],
+        "arr1":[1,"asdf","werq",[],{}],
+        "arr2":[["aa","bb","ccc"],[4,5,6]],
+        "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGe7pRuhP8DfyHYnEO39QRcL7dmkauc3RO_g&usqp=CAU",
+        "Result": [
+            {
+                "PROD_CD": "00001", 
+                "PROD_DES": "test123", 
+                "SIZE_FLAG": "1", 
+                "SIZE_DES": "6", 
+                "UNIT": "EA", 
+                "PROD_TYPE": "3", 
+                "SET_FLAG": "1", 
+                "BAL_FLAG": "1",
+                "WH_CD": "00002", 
+                "IN_PRICE":  {
+                    "시간당 연속 오류 제한 건수" : "0/30",
+                    " 1시간 허용량" : "3/6000",
+                    " 1일 허용량" : "4/10000"
+                },
+                "SIZE_CD": "", 
+                "IN_PRICE_VAT": "1", 
+                "REMARKS_WIN": "test", 
+                "CLASS_CD": "00001", 
+                "CLASS_CD2": "", 
+                "CLASS_CD3": "", 
+                "BAR_CODE": "8801166053051", 
+                "VAT_YN": "Y", 
+                "TAX": "20.000", 
+                "VAT_RATE_BY_BASE_YN": "Y", 
+                "VAT_RATE_BY": "20.00000", 
+                "CS_FLAG": "1", 
+                "PROD_SELL_TYPE": "B", 
+                "PROD_WHMOVE_TYPE": "B",
+                "QC_BUY_TYPE": "B", 
+                "QC_YN": "B", 
+                "SAFE_QTY": "0.0000000000"
+            },
+            {
+                "PROD_CD": "00002", 
+                "PROD_DES": "asdf", 
+                "SIZE_FLAG": "1", 
+                "SIZE_DES": "6", 
+                "UNIT": "EA", 
+                "PROD_TYPE": "3", 
+                "SET_FLAG": "1", 
+                "BAL_FLAG": "1",
+                "WH_CD": "00002", 
+                "IN_PRICE": "234.0000000000", 
+                "SIZE_CD": "", 
+                "IN_PRICE_VAT": "1", 
+                "REMARKS_WIN": "test", 
+                "CLASS_CD": "00001", 
+                "CLASS_CD2": "", 
+                "CLASS_CD3": "", 
+                "BAR_CODE": "8801166053051", 
+                "VAT_YN": "Y", 
+                "TAX": "20.000", 
+                "VAT_RATE_BY_BASE_YN": "Y", 
+                "VAT_RATE_BY": "20.00000", 
+                "CS_FLAG": "1", 
+                "PROD_SELL_TYPE": "B", 
+                "PROD_WHMOVE_TYPE": "B",
+                "QC_BUY_TYPE": "B", 
+                "QC_YN": "B", 
+                "SAFE_QTY": "0.0000000000"
+            }
+        ]
+    },
+    "Status": "200",
+    "Errors": null,
+    "Error": null,
+    "Timestamp": "2020-01-00 00:00:00.000",
+    "RequestKey": null,
+    "IsEnableNoL4": true,
+    "RefreshTimestamp": "0",
+    "AsyncActionKey": null
+}</textarea>
+
+        <div>
+            <button id="json2tableBtn">👇 JSON to Table</button>
+            <button class="clipboardBtn" data-clipboard-target="#resultBox" title="테이블 내용을 전체 클립보드에 복사하기.(엑셀 켜고 붙여넣기)">📋 Table복사</button>
+            <button id="downExcelBtn" title="더블 클릭해서 td를 선택하면 td안의 테이블 내용을 엑셀로 생성됨.">Excel다운로드</button>
+            <button id="saveFileBtn">HTML파일저장</button>
+            <a href="http://www.bejson.com/explore/index_new/" target="_blank" title='json format' >[json_format]</a>
+            <a href="http://www.bejson.com/jsonviewernew/" target="_blank" title="json beautiful">[json_beautiful]</a>
+            <input type="text" id="imgColNameInput" placeholder="이미지열 나열" title="이미지로 보기: 여러개일때 콤마(,)사용 가능.  [열이름|주소앞추가|주소뒤추가]" />
+            <button id="showTop10Btn" title="데이터가 많아 너무 느릴때 사용" num="5">첫5행만보기</button>
+            <div id="tooltip"></div>
+            <button id="table2jsonBtn" title="making..">👆 Table to JSON</button>
+        </div>
+
+		<div id="resultBox"></div>
+    </div>
+
+
+    <script>
+        //------------------init 
+
+        $(function(){
+            $('#json2tableBtn').click();
+        })
+
+        //---------------------user event
+        
+        //textarea
+        $('#jsonInput').keydown(function(e){
+            if(e.ctrlKey && e.key == 'Enter') {
+                $('#json2tableBtn').click();
+            }
+            //use tab key
+            if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}
+        })
+
+        //to table버튼
+        $('#json2tableBtn').click(function(){
+            $('#resultBox').html(json2table($('#jsonInput').val()))
+        })
+
+        //to json버튼 
+        $('#table2jsonBtn').click(function(){
+            if( $('#resultBox tr.hide').length > 0 ){
+                $('#resultBox tr.hide').remove()
+                $('#jsonInput').removeAttr('style')
+                $('#resultBox').removeAttr('style')
+            }
+            $('#jsonInput').val(JSON.stringify(table2json('#resultBox>table'), null, '    '))
+        })
+
+
+
+        //이미지열 나열 (주소를 이미지로 보기)
+        $('#imgColNameInput').keydown(function(e){
+            if(e.key == 'Enter') {
+                let ss = $(this).val().split('|')
+                let text = (typeof ss[0] == 'undefined') ? '' : ss[0];
+                let beforePath = (typeof ss[1] == 'undefined') ? '' : ss[1];
+                let afterPath = (typeof ss[2] == 'undefined') ? '' : ss[2];
+                let activeDom = $('#resultBox td.active');
+                if(activeDom.length > 0){
+                    if(activeDom.text() !== ''){
+                        activeDom.html('<img src="'+ beforePath + activeDom.text() + afterPath +'">')
+                    }
+                }else{
+                    text.split(',').forEach(function(v,i){
+                        v = v.trim().toLocaleLowerCase()
+                        $('#resultBox .header>td').filter(function(){ return $(this).text().toLocaleLowerCase() == v }).each(function(){ 
+                            let dom = $(this).parent().parent().find('> :not(tr.header) > td:nth-child('+ ($(this).index()+1) +')')
+                            dom.each(function(){ 
+                                if($(this).text() !== ''){
+                                    $(this).html('<img src="'+ beforePath + $(this).text() + afterPath +'">')
+                                }
+                                // console.log($(this).text())
+                            })
+                        })
+                    })
+                }
+            }
+        })
+        //첫n행만보기
+        $('#showTop10Btn').click(function(){
+            let num =  $(this).attr('num')
+            num = prompt('첫 몇행만 보기', num);
+            if(num !== null){
+                num = Number(num)
+                $('#resultBox .header').each(function(){
+                    $(this).parent().find('>tr:gt('+ num +')').addClass('hide')
+                })
+                $("#jsonInput").hide();
+                $('#resultBox').css('max-height','92vh').css('height','92vh')
+            }
+        })
+
+
+
+
+        //테이블 마킹 (엑셀 다운로드용) //marking download table
+        $('#resultBox').on('dblclick','td',function(e){
+            if(e.ctrlKey == false) $('#resultBox td.active').removeClass('active')
+            e.preventDefault()
+            e.stopPropagation()
+            $(this).addClass('active').focus();
+            
+        })
+        //테이블 취소 마킹 //cancel marked table
+        $('body').keydown(function(e){
+            if(e.key == 'Escape') $('#resultBox td.active').removeClass('active')
+        })
+
+
+        //엑셀 다운로드 //download excel file
+        $('#downExcelBtn').click(function(){
+            if($('#resultBox > table').length > 0){
+                $('#resultBox tr.hide').remove()//
+                if($('#resultBox td.active table').length > 0) table2excelDown('#resultBox td.active')
+                else if($('#resultBox td.active').parent().hasClass('header')){
+                    // console.log(11111)
+                    let dom = $('#resultBox td.active')
+                    activeDom = dom.parent().next().find('>td').eq( dom.index() )
+                    if(activeDom.find('table').length > 0 ) table2excelDown(activeDom, dom.text())
+                    else alert('선택한 td.header의 아래 데이터중 table이 없습니다.')
+                    // console.log(activeDom)
+                    
+                }
+                else table2excelDown('#resultBox')
+            }
+        })
+
+        //파일저장.
+        $('#saveFileBtn').click(function(){
+            $('#resultBox tr.hide').remove()//
+            let html = $('#resultBox').prop('outerHTML')
+            let css1 = $('#css1').prop('outerHTML')
+            downloadBlob(new Blob([html, css1]), 'table.html');
+            // b = new Blob([html], {type:'text/html'})
+            // f = new File([b], 'table.html')
+            // u = URL.createObjectURL(b)
+            // URL.revokeObjectURL(u);
+            // console.log(f)
+            //study https://juejin.cn/post/6844903503727427598
+        })
+
+
+
+
+
+
+        //----------------------- to Json 
+        //TABLE TO JSON
+        function table2json(table){
+            let rs;
+            tableDom = $(table)
+            // if(tableDom.prop('tagName') == 'TABLE'){
+                if(tableDom.find('>tbody>tr.header').length > 0){
+                    let trHeaderDom = tableDom.find('>tbody>tr.header')
+                    let trDataDom = tableDom.find('>tbody>tr.data')
+                    // console.log(trHeaderDom, trDataDom)
+                    if(trHeaderDom.hasClass('list_object') || trHeaderDom.hasClass('one_object')){
+                        rs=[]
+                        trDataDom.each(function(){
+                            let tdHeaderDom = trHeaderDom.find('>td')
+                            let tdDataDom = $(this).find('>td')
+                            let obj ={}
+                            tdDataDom.each(function(i){
+                                let k = tdHeaderDom.eq(i).text()
+                                let v = tdDom2val($(this))
+                                if(typeof v !== 'undefined') obj[k] = v
+                            })
+                            if(trHeaderDom.hasClass('list_object')) rs.push(obj)
+                            else rs = obj
+                        })
+                    }
+                    else if(trHeaderDom.hasClass('list_array') || trHeaderDom.hasClass('one_array')){
+                        rs = []
+                        trDataDom.each(function(){
+                            let tdHeaderDom = trHeaderDom.find('>td')
+                            let tdDataDom = $(this).find('>td')
+                            let arr = []
+                            tdDataDom.each(function(i){
+                                let k = tdHeaderDom.eq(i).text()
+                                let v = tdDom2val($(this))
+                                if(typeof v !== 'undefined') arr.push(v)
+                            })
+                            if(trHeaderDom.hasClass('list_array')) rs.push(arr)
+                            else rs = arr;
+                        })
+                    }
+
+                }
+                else{
+                    rs = tdDom2val(tableDom.find('>tbody>tr.data>td'))
+                }
+            // }
+            // console.log(rs)
+            return rs
+
+            //
+            function tdDom2val(tdDom){
+                let rs; 
+                tdDom = $(tdDom)
+                let tdTableDom = tdDom.find('>table')
+                if(tdTableDom.length > 0){
+                    rs = table2json(tdTableDom)
+                }else{
+                    let type = tdDom.attr('title');
+                    // console.log(tdDom, type)
+                    if( type === 'string')  rs = tdDom.text()
+                    else if(type === 'number') rs = Number(tdDom.text())
+                    else if(type === 'boolean'){
+                        let val = tdDom.text()
+                        if(val === 'true') rs = true;
+                        else if(val === 'false') rs = false;
+                    }
+                    else if(type === 'null') rs = null;
+                    else { //type == 'undefined'
+                        // console.log(tdDom.text())
+                        // rs = tdDom.text()
+                    }
+                }
+                return rs; 
+            }
+        }
+
+
+
+
+        //-----------------------to Table
+        //JSON TO TABLE
+        function json2table(data){
+
+            if(typeof data == 'string'){
+                if(isJson(data)) data = JSON.parse(data);
+                else {
+                    $('#resultBox').empty();//
+                    return alert('정확한 JSON격식이 아닙니다.');
+                }
+            }
+            //data = obj2valJson(data);
+            // console.log(data)
+            // console.log(tableWrap(data))
+            $('#resultBox').html(tableWrap(data))
+            
+
+            //array,object일때 for 
+            //값이 또 array, object일때 또 회전.(한번 회전시마다 table 스트링을 포함됨.) 
+            //아닐때 종료
+            function tableWrap(data){
+                let rs = '';
+                rs += '<table border="1" cellspacing="0">';
+                rs += '<tbody>'
+                if(getType(data) === 'object'){
+                    if(Object.keys(data).length > 0){
+                        rs += '<tr class="header one_object">'
+                        for(let k in data){
+                            rs += '<td title="'+ getType(k) +'">'+ k +'</td>'
+                        }
+                        rs += '</tr>'
+                        rs += '<tr class="data">'
+                        for(let k in data){
+                            rs += '<td title="'+ getType(data[k]) +'">'+ valIsObj(data[k]) +'</td>'
+                        }
+                        rs += '</tr>'
+                    }else{
+                        rs += '<tr class="header one_object empty"><td title="undefined">//EMPTY</td></tr>'
+                    }
+                }
+                else if(getType(data) === 'array'){
+                    // console.log(1111111, getType(data[0]), getType(data[0][0]))
+                    if(data.length > 0){
+
+                        let isFoundObj = false;
+                        let isFoundArr = false;
+                        let isFoundBase = false;
+                        for(let i in data){
+                            let type = getType(data[i])
+                            if(type == 'object'){
+                                isFoundObj = true;
+                            }
+                            if(type == 'array'){
+                                isFoundArr = true;
+                            } 
+                            if(type == 'string' || type =='number ' || type == 'boolean' || type =='null') isFoundBase = true;
+                        }
+
+                        if(isFoundArr && !isFoundObj && !isFoundBase){
+                            rs += data2trTd(data)
+                        }
+                        else if(!isFoundArr && isFoundObj && !isFoundBase){
+                            rs += data2trTd(data)
+                        }
+                        else {
+                            // console.log(1111111, data)
+                            // if(false){
+                                rs +=  '<tr class="header one_array">'
+                                for(let i=0; i<data.length; i++){
+                                    rs += '<td title="number">'+ i +'</td>'
+                                }
+                                rs += '</tr>'
+                            // }
+                            rs += '<tr class="data">'
+                            for(let i=0; i<data.length; i++){
+                                rs += '<td title="'+ getType(data[i]) +'">'
+                                rs += valIsObj(data[i]) 
+                                rs += '</td>'
+                            }
+                            rs += '</tr>'
+
+                        }
+                    }
+                    else{
+                        rs += '<tr class="header one_array empty"><td title="undefined">//EMPTY</td></tr>'
+                    }
+                }
+                else{ 
+                    rs += '<tr class="data">'
+                    rs += '<td title="'+ getType(data) +'">'+ data +'</td>'
+                    rs += '</td>'
+                }
+                rs += '</tbody>'
+                rs += '</table>'
+                return rs;
+
+                //--------
+                function data2trTd(data){
+                    let isSameObject = isArraySameObject(data)
+                    if(isSameObject){
+                        let type = getType(data[0])
+                        let objKeys =[]
+                        for(let i in data){
+                            objKeys = objKeys.concat(Object.keys(data[i]))
+                        }
+                        if(data.length > 1){
+                            objKeys = [...new Set(objKeys)]
+                        }
+                        // console.log(objKeys,'--------')
+                        rs = '';
+                        if(type == 'object'){
+                            rs += '<tr class="header list_object">';
+                            for(let i in objKeys){
+                                rs += '<td title="string">'+ objKeys[i] +'</td>'
+                            }
+                        }
+                        else {
+                            rs += '<tr class="header list_array">';
+                            for(let i in objKeys){
+                                rs += '<td title="number">'+ objKeys[i] +'</td>'
+                            }
+                        }
+                        rs += '</tr>\n';
+                        for(let i=0; i<data.length; i++){
+                            rs += '<tr class="data">'
+                            for(let k in objKeys){
+                                let val = data[i][objKeys[k]]
+                                rs += '<td title="'+ getType(val) +'">'
+                                rs += valIsObj(val) 
+                                rs += '</td>'
+                            }
+                            rs += '</tr>\n'
+                        }
+                        // console.log(rs)
+                        return rs;
+                    }
+                    else{
+                        // if(false){
+                            rs = ''
+                            rs +=  '<tr class="header one_array">'
+                            for(let i=0; i<data.length; i++){
+                                rs += '<td title="number">'+ i +'</td>'
+                            }
+                            rs += '</tr>'
+                        // }
+                        rs += '<tr class="data">'
+                        for(let i=0; i<data.length; i++){
+                            rs += '<td title="'+ getType(data[i]) +'">'
+                            rs += valIsObj(data[i]) 
+                            rs += '</td>'
+                        }
+                        rs += '</tr>'
+                        // console.log(data, rs)
+                        return rs; 
+                    }
+                }
+
+                //Array안에 값이 전체 object 이거나 전체 array일때
+                function isArraySameObject(data){
+                    if(getType(data) == 'array'){
+                        let type = getType(data[0])
+                        if(data.length > 0){
+                            return data.every(function(v,i){
+                                return getType(v) == type
+                            })
+                        }
+                    }
+                    return false;
+                }
+                //
+                function valIsObj(data){
+                    let rs = '';
+                    if(getType(data) === 'object') rs += tableWrap(data)
+                    else if(getType(data) === 'array') rs += tableWrap(data)
+                    else rs += data;
+                    return rs;
+                }
+            }
+
+
+            //공통
+            function getType(data){  if(data instanceof Array) return 'array'; else if(data === null) return 'null'; else return typeof data; }
+            function isJson(str) { try { JSON.parse(str); } catch (e) { return false; } return true;}
+
+        }
+
+
+
+
+        //------------------down
+
+        //TABLE TO EXCEL DOWN
+        function table2excelDown(dom, filename='main'){
+            let copyDom = $(dom).clone()
+            // copyDom.find(' > table table').remove()
+            copyDom.find('>table table').each(function(i,v){
+                $(this).replaceWith(JSON.stringify(table2matrix(this),null,4))
+            })
+            let conf = {};
+            conf['colWidth'] = copyDom.find('tr.header td').map(function(){ return $(this).width() + 100; }).toArray();
+            table2excel(copyDom, conf,  filename+'_'+ today('Y-m-d_H-i-s')+'.xlsx');
+        }
+
+
+        //BLOB FILE DOWNLOAD
+        function downloadBlob(blob, name = 'file.txt') {
+            const blobUrl = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = blobUrl;
+            link.download = name;
+            document.body.appendChild(link);
+            link.dispatchEvent(
+                new MouseEvent('click', { 
+                bubbles: true, 
+                cancelable: true, 
+                view: window 
+                })
+            );
+            document.body.removeChild(link);
+        }
+        // // Usage
+        // let jsonBlob = new Blob(['{"name": "test"}'])
+        // downloadBlob(jsonBlob, 'myfile.json');
+
+
+
+        //-------------------right menu
+        makeContextMenu('#resultBox', rightMenuBox);//오른쪽 메뉴
+
+            //마우스 우클릭 메뉴
+            function rightMenuBox(e){
+                let targetDom = $(e.target)
+                if(targetDom.parent().prop('tagName') == 'TR' ){
+                    if(targetDom.parent().hasClass('header')){
+                        //메뉴클릭전 보기
+                        $('#rightMenu').html( `
+                            <h4>TR - Change Type</h4>
+                            <ul class="items">
+                                <li data="list_array">list_array</li>
+                                <li data="list_object">list_object</li>
+                                <li data="one_array">one_array</li>
+                                <li data="one_object">one_object</li>
+                            </ul>
+                        `);
+                        let type = ''
+                        let trDom = targetDom.parent();
+                        if(trDom.hasClass('one_object')) type = 'one_object';
+                        else if(trDom.hasClass('one_array')) type = 'one_array';
+                        else if(trDom.hasClass('list_object')) type = 'list_object';
+                        else if(trDom.hasClass('list_array')) type = 'list_array';
+
+                        let typeInMenuDom = $('#rightMenu li[data='+ type +']')
+                        typeInMenuDom.text(typeInMenuDom.text() + ' <-')
+                        //메뉴클릭후 실행
+                        $('#rightMenu li').off().click(function(){
+                            event.preventDefault();
+                            event.stopPropagation();
+                            let activeType = $(this).attr('data');
+                            trDom.removeClass(type).addClass(activeType)
+                            $("#rightMenu").hide();
+                            alert(type +' ---> '+ activeType)
+                        })
+                    }
+
+                    else if(targetDom.parent().hasClass('data')){
+                        //메뉴클릭전 보기
+                        $('#rightMenu').html( `
+                            <h3>TD - Change Type</h3>
+                            <ul class="items">
+                                <li data="string">string</li>
+                                <li data="number">number</li>
+                                <li data="boolean">boolean</li>
+                                <li data="null">null</li>
+                                <li data="undefined">undefined</li>
+                            </ul>
+                        `);
+                        let type = targetDom.attr('title');
+                        let typeInMenuDom = $('#rightMenu li[data='+ type +']')
+                        typeInMenuDom.text(typeInMenuDom.text() + ' <-')
+                        // console.log(targetDom.attr('title'))
+                        //메뉴클릭후 실행
+                        $('#rightMenu li').off().click(function(){
+                            event.preventDefault();
+                            event.stopPropagation();
+                            let activeType = $(this).attr('data');
+                            targetDom.attr('title', activeType)
+                            $("#rightMenu").hide();
+                            alert(targetDom.attr('title') +' ---> '+ activeType)
+                        })
+                    
+                    }
+                    else $('#rightMenu').html('');
+                } 
+                else $('#rightMenu').html('');
+                
+            }
+
+            //LIB: 오른쪽 메뉴
+            function makeContextMenu(sel='#excelTableBox', callback, menuName='rightMenu'){
+                // console.log('makeContextMenu')
+                // setTimeout(function(){
+                    $(sel).on("contextmenu",function(e){
+                        e.preventDefault();
+                        if( $('#'+ menuName).length == 0) {
+
+                            $('body').append(`
+                                <div id='`+ menuName +`'></div>
+                                <style id="`+ menuName +`Style">
+                                    #`+ menuName +` {width: 220px; display:none; position:fixed;border:1px solid #B2B2B2;background:#F9F9F9;box-shadow:3px 3px 2px #E9E9E9;border-radius:4px; user-select: none; z-index: 1000;}
+                                    #`+ menuName +` > div{padding-left:10px;}
+                                    #`+ menuName +` ul.items{list-style:none;margin:0px;margin-top:4px;padding-left:5px;padding-right:5px;padding-bottom:3px;font-size:17px;color:#333333;}
+                                    #`+ menuName +` ul.items li{padding:3px;padding-left:10px;}
+                                    #`+ menuName +` ul.items li:hover{color:white;background:#284570;border-radius:2px;cursor: pointer;}
+                                    #`+ menuName +` hr{display:block;width:85%;background-color:#E4E4E4;border-color:#E4E4E4;color:#E4E4E4;}
+                                    #`+ menuName +` h2 { padding-left: 22px; font-size: 18px; display: block; background: #3d3d3d; color: #fff; margin: 0px;}
+                                    #`+ menuName +` h3 { padding: 5px 10px; font-size: 16px; display: block; background: #50b013; color: #fff; margin: 0;}
+                                    #`+ menuName +` h4 { padding: 5px 10px; font-size: 16px; display: block; background: #ff4343; color: #fff; margin: 0;}
+                                    #`+ menuName +` p { color: #949494; border-radius: 2px; padding: 3px 3px 3px 10px; margin: 0; pointer-events: unset;}
+                                    #`+ menuName +` input { width:30px;}
+                                </style>
+                            `);
+                            $('#'+ menuName).click(function(){//필수
+                                event.preventDefault();
+                                event.stopPropagation();
+                                event.stopImmediatePropagation();
+                            })
+                        }
+                        $('body').on('click',function(){//메뉴외 범위 클릭시 감춤
+                            // event.preventDefault();
+                            // event.stopPropagation();
+                            // event.stopImmediatePropagation();
+                            // console.log(111, menuName)
+                            // $(sel).find('td.select').removeClass('select')
+                            $("#"+ menuName).hide();
+                            $('body').off("click");
+                        });
+                        // $(sel).find('td.select').removeClass('select')
+                        if(typeof callback == 'function') callback(e);
+
+                        // if($('#'+ menuName).html() == '' ) $('#'+ menuName +'Style').attr('media', 'max-width: 1px')
+                        // else $('#'+ menuName +'Style').removeAttr('media')
+                        if($('#'+ menuName).html() == '' ){ $('#'+ menuName).hide(); return; }
+                        else $('#'+ menuName).show();
+
+                        //x,y축
+                        let menuWidth = $('#'+ menuName).width();
+                        let menuHeight = $('#'+ menuName).height();
+                        let pointX= e.pageX + menuWidth > window.innerWidth ? e.pageX - menuWidth : e.pageX;
+                        let pointY= e.pageY + menuHeight > window.innerHeight ? e.pageY - menuHeight : e.pageY;
+                        $("#"+ menuName).css("left", pointX).css("top", pointY).show()
+                        // console.log('--1111---', e.target, e, e.pageX, e.pageY, e.offsetX, e.offsetY, e.pageX + menuWidth,  e.pageY + menuHeight, window.innerWidth, window.innerHeight);
+
+                    });
+                // },300)
+            }
+
+
+
+        
+        //-------------------tooltip
+        addTooltip('#tooltip',`[Help]:
+
+    - 더블클릭: 수정 (Esc키: 수정상태 취소)
+    - 마우스 오른쪽 메뉴: 데이터 타입변경.
+    `)
+
+            function addTooltip(sel, msg){
+                $(sel).prepend(`<div class="tooltip_br"><i>?</i><div class="help">${msg}</div></div>`);
+                $(sel).wrap('<div class="tooltip_wrap"></div>')
+                if($('#css_tooltip').length == 0){
+                    $(sel).after(`
+                        <style id="css_tooltip">
+                            .tooltip_wrap { position: relative; display: inline-block; vertical-align: middle; clear: both;}
+                            .tooltip_br { display: block; float: right; font-size: 14px; color: #666; margin-right: 10px;  }
+                            .tooltip_br:focus, .tooltip_br:hover { outline: none; color: #000 }
+                            .tooltip_br > i { cursor: pointer; display: block; padding: 0 6px; border: 1px solid #e6e6e6; vertical-align: middle; user-select: none; font-weight: bold; border-radius: 20px; font-style: normal; font-size: 16px; font-family: cursive; color: #aaa;}
+                            .tooltip_br > i:hover {background: #f5ff61; color:#777; border: none;}
+                            .tooltip_br > .help { display: none; position: absolute; z-index: 9; min-width: 85px; text-align: left; right:4px; top: 26px; width: 260px; font-size: 12px; font-weight: normal; color: #333; line-height: 1.45; padding: 10px; border-radius: 2px; border: 1px solid rgba(0,0,0,0.1); box-shadow: 0 1px 3px rgba(0,0,0,0.1); background-color: #FFFDE7; white-space: pre-wrap;}
+                            .tooltip_br > .help:before { content: ""; position: absolute; top: -11px; right: 15px; margin-right: -5px; border-width: 5px; border-style: solid; border-color: transparent transparent rgba(0,0,0,0.1) transparent }
+                            .tooltip_br > .help:after { content: ""; position: absolute; top: -10px; right: 15px; margin-right: -5px; border-width: 5px; border-style: solid; border-color: transparent transparent #FFFDE7 transparent }
+                        </style>
+                    `)
+                    $('.tooltip_br>i').click(function(){ $(this).parent().find('.help').toggle(); });
+                } 
+            }
+
+
+		//------------------------------------공통 
+		// function emptyVal(str, resultVal='---'){ return (typeof str == 'undefined') ? resultVal : str; }
+        // function getType(data){  if(data instanceof Array) return 'array'; else if(data === null) return 'null'; else return typeof data; }
+        // function isJson(str) { try { JSON.parse(str); } catch (e) { return false; } return true; }
+
+
+    </script>
+
+
+</body>
+</html>
