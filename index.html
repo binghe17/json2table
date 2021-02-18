@@ -7,9 +7,13 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.14.3/xlsx.full.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/1.3.8/FileSaver.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+    <script type="text/javascript" src="js/drop.js"></script>
     <script type="text/javascript" src="js/date.js"></script>
     <script type="text/javascript" src="js/matrix.js"></script>
     <script type="text/javascript" src="js/tableToExcel_fun.js"></script>
+    <script type="text/javascript" src="js/xml2json.js"></script>
+    <script type="text/javascript" src="js/jquery.format.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js"></script>
     <script>  $(function(){ new ClipboardJS('.clipboardBtn');  }); </script>    
     <style id="css1">
@@ -76,6 +80,10 @@
 	#inputGroup label:hover {background:#f2f2f2;}
     #resultBox { width: 100%; border: 1px solid #777;background: #fff; overflow-y: auto; min-width: 350px; resize: vertical; max-height: 60vh;}
     #resultBox table { width: max-content;font-size: 12px; color:#000;}
+    #resultBox td[title=string] {}
+    #resultBox td[title=string] table {}
+    #resultBox td[title=string] tr{}
+    #resultBox td[title=string] td{}
     #resultBox td span { font-size: 12px !important;}
     /* #resultBox td {-webkit-user-modify: read-write;} */
     #resultBox td.select { -webkit-user-modify: read-write; background: #f9ffc0;}
@@ -92,6 +100,8 @@
     #resultBox table tr:hover {background: #f7ffb9;}
     #resultBox tr.data td[title=undefined] {background: #ddd; color: #777;}
 
+    #statusBox { display: inline-block; float: right; background: #14bd39; color: #fff; border-radius: 16px; padding: 0 8px; font-size: 11px; margin: 5px; font-family: serif;}
+
     #jsonInput { height: calc( 100vh - 60vh - 54px );}
     #table2jsonBtn {float: right}
     </style>
@@ -103,112 +113,186 @@
 
 	<div id="wrapper">
         <!-- <textarea id="jsonInput">[]</textarea> -->
-		<textarea id="jsonInput">
-{
-    "TEST DATA": {
-        "EXPIRE_DATE":"",
-        "QUANTITY_INFO": {
-            "시간당 연속 오류 제한 건수" : "0/30",
-            " 1시간 허용량" : "3/6000",
-            " 1일 허용량" : "4/10000"
-        },
-    
-        "arr": [1,2],
-        "arrarr2": [1,[1,2]],
-        "arrarr3": [[1,2],2],
-        "list_arr": [[1,2],["3","4","asdf"]],
-        "list_obj": [{"aa":"aaaa"},{"bb":"bbbb"}],
-        "arrao": [[1,2],{"aa":"aaaa"}],
-        "arrao2": [1,[1,2],{"aa":"aaaa"}],
-        "arr1":[1,"asdf","werq",[],{}],
-        "arr2":[["aa","bb","ccc"],[4,5,6]],
-        "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGe7pRuhP8DfyHYnEO39QRcL7dmkauc3RO_g&usqp=CAU",
-        "Result": [
-            {
-                "PROD_CD": "00001", 
-                "PROD_DES": "test123", 
-                "SIZE_FLAG": "1", 
-                "SIZE_DES": "6", 
-                "UNIT": "EA", 
-                "PROD_TYPE": "3", 
-                "SET_FLAG": "1", 
-                "BAL_FLAG": "1",
-                "WH_CD": "00002", 
-                "IN_PRICE":  {
-                    "시간당 연속 오류 제한 건수" : "0/30",
-                    " 1시간 허용량" : "3/6000",
-                    " 1일 허용량" : "4/10000"
-                },
-                "SIZE_CD": "", 
-                "IN_PRICE_VAT": "1", 
-                "REMARKS_WIN": "test", 
-                "CLASS_CD": "00001", 
-                "CLASS_CD2": "", 
-                "CLASS_CD3": "", 
-                "BAR_CODE": "8801166053051", 
-                "VAT_YN": "Y", 
-                "TAX": "20.000", 
-                "VAT_RATE_BY_BASE_YN": "Y", 
-                "VAT_RATE_BY": "20.00000", 
-                "CS_FLAG": "1", 
-                "PROD_SELL_TYPE": "B", 
-                "PROD_WHMOVE_TYPE": "B",
-                "QC_BUY_TYPE": "B", 
-                "QC_YN": "B", 
-                "SAFE_QTY": "0.0000000000"
-            },
-            {
-                "PROD_CD": "00002", 
-                "PROD_DES": "asdf", 
-                "SIZE_FLAG": "1", 
-                "SIZE_DES": "6", 
-                "UNIT": "EA", 
-                "PROD_TYPE": "3", 
-                "SET_FLAG": "1", 
-                "BAL_FLAG": "1",
-                "WH_CD": "00002", 
-                "IN_PRICE": "234.0000000000", 
-                "SIZE_CD": "", 
-                "IN_PRICE_VAT": "1", 
-                "REMARKS_WIN": "test", 
-                "CLASS_CD": "00001", 
-                "CLASS_CD2": "", 
-                "CLASS_CD3": "", 
-                "BAR_CODE": "8801166053051", 
-                "VAT_YN": "Y", 
-                "TAX": "20.000", 
-                "VAT_RATE_BY_BASE_YN": "Y", 
-                "VAT_RATE_BY": "20.00000", 
-                "CS_FLAG": "1", 
-                "PROD_SELL_TYPE": "B", 
-                "PROD_WHMOVE_TYPE": "B",
-                "QC_BUY_TYPE": "B", 
-                "QC_YN": "B", 
-                "SAFE_QTY": "0.0000000000"
-            }
-        ]
+        <!-- <div id="typeGroupBox">
+            <button class="active">JSON</button>
+            <button>CSV</button>
+            <button>XML</button>
+            <button style="float:right;">INFO</button>
+        </div> -->
+		<textarea id="jsonInput">{
+  "TEST DATA": {
+    "EXPIRE_DATE": "",
+    "QUANTITY_INFO": {
+      "시간당 연속 오류 제한 건수": "0/30",
+      " 1시간 허용량": "3/6000",
+      " 1일 허용량": "4/10000"
     },
-    "Status": "200",
-    "Errors": null,
-    "Error": null,
-    "Timestamp": "2020-01-00 00:00:00.000",
-    "RequestKey": null,
-    "IsEnableNoL4": true,
-    "RefreshTimestamp": "0",
-    "AsyncActionKey": null
+    "arr": [
+      1,
+      2
+    ],
+    "arrarr2": [
+      1,
+      [
+        1,
+        2
+      ]
+    ],
+    "arrarr3": [
+      [
+        1,
+        2
+      ],
+      2
+    ],
+    "list_arr": [
+      [
+        1,
+        2
+      ],
+      [
+        "3",
+        "4",
+        "asdf"
+      ]
+    ],
+    "list_obj": [
+      {
+        "aa": "aaaa"
+      },
+      {
+        "bb": "bbbb"
+      }
+    ],
+    "arrao": [
+      [
+        1,
+        2
+      ],
+      {
+        "aa": "aaaa"
+      }
+    ],
+    "arrao2": [
+      1,
+      [
+        1,
+        2
+      ],
+      {
+        "aa": "aaaa"
+      }
+    ],
+    "arr1": [
+      1,
+      "asdf",
+      "werq",
+      [],
+      []
+    ],
+    "arr2": [
+      [
+        "aa",
+        "bb",
+        "ccc"
+      ],
+      [
+        4,
+        5,
+        6
+      ]
+    ],
+    "img": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQGe7pRuhP8DfyHYnEO39QRcL7dmkauc3RO_g&amp;usqp=CAU",
+    "Result": [
+      {
+        "PROD_CD": "00001",
+        "PROD_DES": "test123",
+        "SIZE_FLAG": "1",
+        "SIZE_DES": "6",
+        "UNIT": "EA",
+        "PROD_TYPE": "3",
+        "SET_FLAG": "1",
+        "BAL_FLAG": "1",
+        "WH_CD": "00002",
+        "IN_PRICE": {
+          "시간당 연속 오류 제한 건수": "0/30",
+          " 1시간 허용량": "3/6000",
+          " 1일 허용량": "4/10000"
+        },
+        "SIZE_CD": "",
+        "IN_PRICE_VAT": "1",
+        "REMARKS_WIN": "test",
+        "CLASS_CD": "00001",
+        "CLASS_CD2": "",
+        "CLASS_CD3": "",
+        "BAR_CODE": "8801166053051",
+        "VAT_YN": "Y",
+        "TAX": "20.000",
+        "VAT_RATE_BY_BASE_YN": "Y",
+        "VAT_RATE_BY": "20.00000",
+        "CS_FLAG": "1",
+        "PROD_SELL_TYPE": "B",
+        "PROD_WHMOVE_TYPE": "B",
+        "QC_BUY_TYPE": "B",
+        "QC_YN": "B",
+        "SAFE_QTY": "0.0000000000"
+      },
+      {
+        "PROD_CD": "00002",
+        "PROD_DES": "asdf",
+        "SIZE_FLAG": "1",
+        "SIZE_DES": "6",
+        "UNIT": "EA",
+        "PROD_TYPE": "3",
+        "SET_FLAG": "1",
+        "BAL_FLAG": "1",
+        "WH_CD": "00002",
+        "IN_PRICE": "234.0000000000",
+        "SIZE_CD": "",
+        "IN_PRICE_VAT": "1",
+        "REMARKS_WIN": "test",
+        "CLASS_CD": "00001",
+        "CLASS_CD2": "",
+        "CLASS_CD3": "",
+        "BAR_CODE": "8801166053051",
+        "VAT_YN": "Y",
+        "TAX": "20.000",
+        "VAT_RATE_BY_BASE_YN": "Y",
+        "VAT_RATE_BY": "20.00000",
+        "CS_FLAG": "1",
+        "PROD_SELL_TYPE": "B",
+        "PROD_WHMOVE_TYPE": "B",
+        "QC_BUY_TYPE": "B",
+        "QC_YN": "B",
+        "SAFE_QTY": "0.0000000000"
+      }
+    ]
+  },
+  "Status": "200",
+  "Errors": null,
+  "Error": null,
+  "Timestamp": "2020-01-00 00:00:00.000",
+  "RequestKey": null,
+  "IsEnableNoL4": true,
+  "RefreshTimestamp": "0",
+  "AsyncActionKey": null
 }</textarea>
 
         <div>
-            <button id="json2tableBtn">👇 JSON to Table</button>
+            <button id="json2tableBtn" title="데이터가 많으면 늦을수 있습니다. 한번만 클릭하세요.">👇 JSON to Table</button>
             <button class="clipboardBtn" data-clipboard-target="#resultBox" title="테이블 내용을 전체 클립보드에 복사하기.(엑셀 켜고 붙여넣기)">📋 Table복사</button>
             <button id="downExcelBtn" title="더블 클릭해서 td를 선택하면 td안의 테이블 내용을 엑셀로 생성됨.">Excel다운로드</button>
             <button id="saveFileBtn">HTML파일저장</button>
-            <a href="http://www.bejson.com/explore/index_new/" target="_blank" title='json format' >[json_format]</a>
-            <a href="http://www.bejson.com/jsonviewernew/" target="_blank" title="json beautiful">[json_beautiful]</a>
+            <a href="http://www.bejson.com/explore/index_new/" target="_blank" title='json format' >format</a>
+            <a href="http://www.bejson.com/jsonviewernew/" target="_blank" title="json beautiful">beautiful</a>
             <input type="text" id="imgColNameInput" placeholder="이미지열 나열" title="이미지로 보기: 여러개일때 콤마(,)사용 가능.  [열이름|주소앞추가|주소뒤추가]" />
             <button id="showTop10Btn" title="데이터가 많아 너무 느릴때 사용" num="5">첫5행만보기</button>
             <div id="tooltip"></div>
+            <span id="csvBox">
+                <button id="csvBtn1" title="csv: hide image">1</button>
+            </span>
             <button id="table2jsonBtn" title="making..">👆 Table to JSON</button>
+            <div id="statusBox" title="글짜수"></div>
         </div>
 
 		<div id="resultBox"></div>
@@ -222,6 +306,103 @@
             $('#json2tableBtn').click();
         })
 
+
+
+    
+    
+        //외부파일 드래그 삽입 
+        tagDrop($('textarea').get(0), function(file){
+            // console.log(file);
+            if(typeof file[0] !== 'undefined'){
+                // console.log(file[0].name);
+                $('#resultBox').html(`
+                    <pre class="info"></pre>
+                    <style>
+                    #resultBox .info {background: #eee; padding: 10px;}
+                    </style>
+                `) 
+                $('#jsonInput').val(file[0].text)
+                $('#resultBox .info').html(
+                    'File Name: '+ file[0].name +'\n'+
+                    'File Size: '+ file[0].size +'\n'+
+                    'File Type: '+ file[0].type +'\n'+
+                    'File Ext: '+ file[0].ext +'\n'+
+                    'Last Modified: '+  today('Y-m-d H:i:s', new Date(file[0].lastModified))
+                )
+                // console.log( today('Y-m-d', new Date(file[0].lastModified)) )
+                
+                if(file[0].ext == 'csv'){
+                    $('#csvBtn1').click(function(){ //1 버튼
+                        if($('#css_csv').length == 0) $('#csvBox').append('<style id="css_csv"> #resultBox img {height: 100px; margin-right: 2px;} </style>')
+                        // else $('#css_csv').remove();
+                        $('#resultBox td:nth-child(21)').toggleClass('hide')
+                    })
+                    
+                }
+                // else if(file[0].ext == 'xml'){
+                // }
+            }
+        
+        });
+    
+        // tagDrop($('textarea').get(0), function(file){
+        //     // console.log(file);
+        //     if(typeof file[0] !== 'undefined'){
+        //         // console.log(file[0].name);
+        //         $('#resultBox').html(`
+        //             <pre class="info"></pre>
+        //             <textarea class="originText"></textarea>
+        //             <!-- <button>toArray</button> -->
+        //             <!-- <textarea class="parseJson"></textarea>-->
+        //             <style>
+        //             #resultBox textarea {width:-webkit-fill-available; height:35vh;}
+        //             #resultBox .info {background: #eee; padding: 10px;}
+        //             </style>
+        //         `) 
+        //         $('#resultBox .originText').val(file[0].text)
+        //         $('#resultBox .info').html(
+        //             'ext: '+ file[0].ext +'\n'+
+        //             'name: '+ file[0].name +'\n'+
+        //             'size: '+ file[0].size +'\n'+
+        //             'type: '+ file[0].type +'\n'+
+        //             'lastModified: '+ file[0].lastModified +'\n'+
+        //             // 'lastModifiedDate: '+ file[0].lastModifiedDate +'\n'+
+        //             'lastModifiedDate: '+ (file[0].lastModifiedDate ? file[0].lastModifiedDate.toLocaleDateString().replace(/ /g,'') : 'n/a') 
+        //         )
+        //         if(file[0].ext == 'csv'){
+        //             let csvText = file[0].text
+        //             let arr = $.csv.toArrays(csvText,{separator:'\t'}); //https://github.com/typeiii/jquery-csv/blob/master/docs/api.md
+        //             let jsonText = JSON.stringify(arr, null, 2)
+        //             $('#jsonInput').empty().val(jsonText);
+        //             //$('#resultBox .parseJson').empty().html(jsonText);
+        //             // let csvText2 = $.csv.fromArrays(arr,{separator:'\t'});
+        //             // console.log(csvText2)
+        //             // arr = transpose(arr);//행열전환
+        //             // console.log(arr)
+        //             $('#csvBtn1').click(function(){ //1 버튼
+        //                 if($('#css_csv').length == 0) $('#csvBox').append('<style id="css_csv"> #resultBox img {height: 100px; margin-right: 2px;} </style>')
+        //                 // else $('#css_csv').remove();
+        //                 $('#resultBox td:nth-child(21)').toggleClass('hide')
+        //             })
+                    
+        //             // let arr2 = $.csv.toObjects(csvText, {separator:'\t', headerIndex:2, startIndex: 7, endIndex:20 }); //???
+        //             // console.log(arr2)
+        //             // let csv = $.csv.fromObjects(arr2,{separator:'\t'});
+        //             // $('#resultBox').append('<button>csv</button>')
+        //         }
+
+        //     }
+        
+        // });
+    
+
+
+
+
+
+
+
+
         //---------------------user event
         
         //textarea
@@ -230,12 +411,17 @@
                 $('#json2tableBtn').click();
             }
             //use tab key
-            if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}
+            else if(event.keyCode===9){var v=this.value,s=this.selectionStart,e=this.selectionEnd;this.value=v.substring(0, s)+'\t'+v.substring(e);this.selectionStart=this.selectionEnd=s+1;return false;}      
         })
+        $('#jsonInput').keyup(statusFun)
+        function statusFun(){
+            $('#statusBox').text($('#jsonInput').val().length)
+        }
 
         //to table버튼
         $('#json2tableBtn').click(function(){
             $('#resultBox').html(json2table($('#jsonInput').val()))
+            statusFun();
         })
 
         //to json버튼 
@@ -245,7 +431,8 @@
                 $('#jsonInput').removeAttr('style')
                 $('#resultBox').removeAttr('style')
             }
-            $('#jsonInput').val(JSON.stringify(table2json('#resultBox>table'), null, '    '))
+            $('#jsonInput').val(JSON.stringify(table2json('#resultBox>table'), null, 2))
+            statusFun();
         })
 
 
@@ -286,6 +473,7 @@
                 num = Number(num)
                 $('#resultBox .header').each(function(){
                     $(this).parent().find('>tr:gt('+ num +')').addClass('hide')
+                    $(this).parent().find('>tr:lt('+ (num+1) +')').removeClass('hide')
                 })
                 $("#jsonInput").hide();
                 $('#resultBox').css('max-height','92vh').css('height','92vh')
@@ -332,95 +520,54 @@
             $('#resultBox tr.hide').remove()//
             let html = $('#resultBox').prop('outerHTML')
             let css1 = $('#css1').prop('outerHTML')
-            downloadBlob(new Blob([html, css1]), 'table.html');
+            let blob = new Blob([html, css1]);
+            downloadBlob(blob, 'table.html');
+
+            // let blob = text2utf16Blob(html+css1, 'UTF16LE')
+            // downloadBlob(blob, 'csv.txt');
+
             // b = new Blob([html], {type:'text/html'})
             // f = new File([b], 'table.html')
             // u = URL.createObjectURL(b)
-            // URL.revokeObjectURL(u);
-            // console.log(f)
-            //study https://juejin.cn/post/6844903503727427598
+            // URL.revokeObjectURL(u); //ex) uri => 'data:text/csv;charset=utf-8,\uFEFF' + encodeURI(CSV);
+            // console.log(f) //study https://juejin.cn/post/6844903503727427598
+            
         })
 
 
-
-
-
-
-        //----------------------- to Json 
-        //TABLE TO JSON
-        function table2json(table){
-            let rs;
-            tableDom = $(table)
-            // if(tableDom.prop('tagName') == 'TABLE'){
-                if(tableDom.find('>tbody>tr.header').length > 0){
-                    let trHeaderDom = tableDom.find('>tbody>tr.header')
-                    let trDataDom = tableDom.find('>tbody>tr.data')
-                    // console.log(trHeaderDom, trDataDom)
-                    if(trHeaderDom.hasClass('list_object') || trHeaderDom.hasClass('one_object')){
-                        rs=[]
-                        trDataDom.each(function(){
-                            let tdHeaderDom = trHeaderDom.find('>td')
-                            let tdDataDom = $(this).find('>td')
-                            let obj ={}
-                            tdDataDom.each(function(i){
-                                let k = tdHeaderDom.eq(i).text()
-                                let v = tdDom2val($(this))
-                                if(typeof v !== 'undefined') obj[k] = v
-                            })
-                            if(trHeaderDom.hasClass('list_object')) rs.push(obj)
-                            else rs = obj
-                        })
-                    }
-                    else if(trHeaderDom.hasClass('list_array') || trHeaderDom.hasClass('one_array')){
-                        rs = []
-                        trDataDom.each(function(){
-                            let tdHeaderDom = trHeaderDom.find('>td')
-                            let tdDataDom = $(this).find('>td')
-                            let arr = []
-                            tdDataDom.each(function(i){
-                                let k = tdHeaderDom.eq(i).text()
-                                let v = tdDom2val($(this))
-                                if(typeof v !== 'undefined') arr.push(v)
-                            })
-                            if(trHeaderDom.hasClass('list_array')) rs.push(arr)
-                            else rs = arr;
-                        })
-                    }
-
+        // blobDownload(text2utf16Blob('Hello, World','UTF16BE'), 'myFile.txt')
+        function text2utf16Blob(str, type='UTF16LE') { //type is UTF16BE, UTF16LE, UTF8, UTF8BOM 
+            let charCode, byteArray = [];
+            type = type.toUpperCase().replace('-','');
+            // console.log(type)
+            if(type === 'UTF16BE'){// UTF-16BE chars
+                byteArray.push(254, 255);
+                for (let i = 0; i < str.length; ++i) {
+                    charCode = str.charCodeAt(i);
+                    byteArray.push((charCode & 0xFF00) >>> 8);
+                    byteArray.push(charCode & 0xFF);
                 }
-                else{
-                    rs = tdDom2val(tableDom.find('>tbody>tr.data>td'))
-                }
-            // }
-            // console.log(rs)
-            return rs
-
-            //
-            function tdDom2val(tdDom){
-                let rs; 
-                tdDom = $(tdDom)
-                let tdTableDom = tdDom.find('>table')
-                if(tdTableDom.length > 0){
-                    rs = table2json(tdTableDom)
-                }else{
-                    let type = tdDom.attr('title');
-                    // console.log(tdDom, type)
-                    if( type === 'string')  rs = tdDom.text()
-                    else if(type === 'number') rs = Number(tdDom.text())
-                    else if(type === 'boolean'){
-                        let val = tdDom.text()
-                        if(val === 'true') rs = true;
-                        else if(val === 'false') rs = false;
-                    }
-                    else if(type === 'null') rs = null;
-                    else { //type == 'undefined'
-                        // console.log(tdDom.text())
-                        // rs = tdDom.text()
-                    }
-                }
-                return rs; 
+                return new Blob([new Uint8Array(byteArray)], {type:'text/plain;charset=UTF-16BE;'});
             }
+            else if(type === 'UTF16LE'){// UTF-16LE chars
+                byteArray.push(255, 254);
+                for (let i = 0; i < str.length; ++i) {
+                    charCode = str.charCodeAt(i);
+                    byteArray.push(charCode & 0xff);
+                    byteArray.push(charCode / 256 >>> 0);
+                }
+                return new Blob([new Uint8Array(byteArray)], {type:'text/plain;charset=UTF-16LE;'});
+            } 
+            else if(type === 'UTF8BOM'){// UTF8BOM chars
+                return new Blob(["\uFEFF", str], { type: 'text/plain;charset=UTF-8;' });
+            }
+            else{
+                return new Blob([str], {type:'text/plain;charset=UTF-8;'});
+            }
+            //ANSI는 안됨
         }
+
+
 
 
 
@@ -446,6 +593,7 @@
             //값이 또 array, object일때 또 회전.(한번 회전시마다 table 스트링을 포함됨.) 
             //아닐때 종료
             function tableWrap(data){
+                if(typeof window.numbering1 == 'undefined') window.numbering1 = 0;
                 let rs = '';
                 rs += '<table border="1" cellspacing="0">';
                 rs += '<tbody>'
@@ -612,6 +760,89 @@
         }
 
 
+        
+
+        //----------------------- to Json 
+        //TABLE TO JSON
+        function table2json(table){
+            let rs;
+            tableDom = $(table)
+            // if(tableDom.prop('tagName') == 'TABLE'){
+                if(tableDom.find('>tbody>tr.header').length > 0){
+                    let trHeaderDom = tableDom.find('>tbody>tr.header')
+                    let trDataDom = tableDom.find('>tbody>tr.data')
+                    // console.log(trHeaderDom, trDataDom)
+                    if(trHeaderDom.hasClass('list_object') || trHeaderDom.hasClass('one_object')){
+                        rs=[]
+                        trDataDom.each(function(){
+                            let tdHeaderDom = trHeaderDom.find('>td')
+                            let tdDataDom = $(this).find('>td')
+                            let obj ={}
+                            tdDataDom.each(function(i){
+                                let k = tdHeaderDom.eq(i).text()
+                                let v = tdDom2val($(this))
+                                if(typeof v !== 'undefined') obj[k] = v
+                            })
+                            if(trHeaderDom.hasClass('list_object')) rs.push(obj)
+                            else rs = obj
+                        })
+                    }
+                    else if(trHeaderDom.hasClass('list_array') || trHeaderDom.hasClass('one_array')){
+                        rs = []
+                        trDataDom.each(function(){
+                            let tdHeaderDom = trHeaderDom.find('>td')
+                            let tdDataDom = $(this).find('>td')
+                            let arr = []
+                            tdDataDom.each(function(i){
+                                let k = tdHeaderDom.eq(i).text()
+                                let v = tdDom2val($(this))
+                                if(typeof v !== 'undefined') arr.push(v)
+                            })
+                            if(trHeaderDom.hasClass('list_array')) rs.push(arr)
+                            else rs = arr;
+                        })
+                    }
+
+                }
+                else{
+                    rs = tdDom2val(tableDom.find('>tbody>tr.data>td'))
+                }
+            // }
+            // console.log(rs)
+            return rs
+
+            //
+            function tdDom2val(tdDom){
+                let rs; 
+                tdDom = $(tdDom)
+                let type = tdDom.attr('title');
+                let tdTableDom = tdDom.find('>table')
+                if((type == 'array' || type == 'object') && tdTableDom.length > 0){
+                    rs = table2json(tdTableDom)
+                    return rs;
+                }
+
+                // console.log(tdDom, type)
+                // if( type === 'string')  rs = htmlDecode(tdDom.html())
+                if( type === 'string')  rs = tdDom.html().replace(/&amp;/g, '&')
+                else if(type === 'number') rs = Number(tdDom.text())
+                else if(type === 'boolean'){
+                    let val = tdDom.text()
+                    if(val == '' || val == 'false' || val == '0') rs = false;
+                    else rs = true;
+                }
+                else if(type === 'null') rs = null;
+                else if(type === 'undefined') rs = undefined;
+                // else { //type == 'undefined'
+                //     // console.log(tdDom.text())
+                //     // rs = tdDom.text()
+                // }
+                return rs; 
+            }
+        }
+
+
+
 
 
         //------------------down
@@ -621,7 +852,7 @@
             let copyDom = $(dom).clone()
             // copyDom.find(' > table table').remove()
             copyDom.find('>table table').each(function(i,v){
-                $(this).replaceWith(JSON.stringify(table2matrix(this),null,4))
+                $(this).replaceWith(JSON.stringify(table2matrix(this),null,2))
             })
             let conf = {};
             conf['colWidth'] = copyDom.find('tr.header td').map(function(){ return $(this).width() + 100; }).toArray();
@@ -650,136 +881,301 @@
         // downloadBlob(jsonBlob, 'myfile.json');
 
 
+        // function downloadBlob2(blob, filename='test.txt'){
+        //     let blobUrl = URL.createObjectURL(blob);
+        //     let link = document.createElement('a');
+        //     link.href = blobUrl;
+        //     link.download = filename;
+        //     if (document.createEvent) {
+        //         let event = document.createEvent('MouseEvents');
+        //         event.initEvent('click', true, true);
+        //         link.dispatchEvent(event);
+        //     } else {
+        //         link.click();
+        //     }
+        // }
 
         //-------------------right menu
-        makeContextMenu('#resultBox', rightMenuBox);//오른쪽 메뉴
+        makeContextMenu('#resultBox', resultBoxMenu);//오른쪽 메뉴
+        makeContextMenu('#jsonInput', jsonInputMenu);//오른쪽 메뉴
 
-            //마우스 우클릭 메뉴
-            function rightMenuBox(e){
-                let targetDom = $(e.target)
-                if(targetDom.parent().prop('tagName') == 'TR' ){
-                    if(targetDom.parent().hasClass('header')){
-                        //메뉴클릭전 보기
-                        $('#rightMenu').html( `
-                            <h4>TR - Change Type</h4>
-                            <ul class="items">
-                                <li data="list_array">list_array</li>
-                                <li data="list_object">list_object</li>
-                                <li data="one_array">one_array</li>
-                                <li data="one_object">one_object</li>
-                            </ul>
-                        `);
-                        let type = ''
-                        let trDom = targetDom.parent();
-                        if(trDom.hasClass('one_object')) type = 'one_object';
-                        else if(trDom.hasClass('one_array')) type = 'one_array';
-                        else if(trDom.hasClass('list_object')) type = 'list_object';
-                        else if(trDom.hasClass('list_array')) type = 'list_array';
 
-                        let typeInMenuDom = $('#rightMenu li[data='+ type +']')
-                        typeInMenuDom.text(typeInMenuDom.text() + ' <-')
-                        //메뉴클릭후 실행
-                        $('#rightMenu li').off().click(function(){
-                            event.preventDefault();
-                            event.stopPropagation();
-                            let activeType = $(this).attr('data');
-                            trDom.removeClass(type).addClass(activeType)
-                            $("#rightMenu").hide();
-                            alert(type +' ---> '+ activeType)
-                        })
-                    }
+                //resultBox 우클릭 메뉴
+                function resultBoxMenu(e){
+                    let targetDom = $(e.target)
+                    if(targetDom.parent().prop('tagName') == 'TR' ){
 
-                    else if(targetDom.parent().hasClass('data')){
-                        //메뉴클릭전 보기
-                        $('#rightMenu').html( `
-                            <h3>TD - Change Type</h3>
-                            <ul class="items">
-                                <li data="string">string</li>
-                                <li data="number">number</li>
-                                <li data="boolean">boolean</li>
-                                <li data="null">null</li>
-                                <li data="undefined">undefined</li>
-                            </ul>
-                        `);
-                        let type = targetDom.attr('title');
-                        let typeInMenuDom = $('#rightMenu li[data='+ type +']')
-                        typeInMenuDom.text(typeInMenuDom.text() + ' <-')
-                        // console.log(targetDom.attr('title'))
-                        //메뉴클릭후 실행
-                        $('#rightMenu li').off().click(function(){
-                            event.preventDefault();
-                            event.stopPropagation();
-                            let activeType = $(this).attr('data');
-                            targetDom.attr('title', activeType)
-                            $("#rightMenu").hide();
-                            alert(targetDom.attr('title') +' ---> '+ activeType)
-                        })
-                    
-                    }
-                    else $('#rightMenu').html('');
-                } 
-                else $('#rightMenu').html('');
-                
-            }
-
-            //LIB: 오른쪽 메뉴
-            function makeContextMenu(sel='#excelTableBox', callback, menuName='rightMenu'){
-                // console.log('makeContextMenu')
-                // setTimeout(function(){
-                    $(sel).on("contextmenu",function(e){
-                        e.preventDefault();
-                        if( $('#'+ menuName).length == 0) {
-
-                            $('body').append(`
-                                <div id='`+ menuName +`'></div>
-                                <style id="`+ menuName +`Style">
-                                    #`+ menuName +` {width: 220px; display:none; position:fixed;border:1px solid #B2B2B2;background:#F9F9F9;box-shadow:3px 3px 2px #E9E9E9;border-radius:4px; user-select: none; z-index: 1000;}
-                                    #`+ menuName +` > div{padding-left:10px;}
-                                    #`+ menuName +` ul.items{list-style:none;margin:0px;margin-top:4px;padding-left:5px;padding-right:5px;padding-bottom:3px;font-size:17px;color:#333333;}
-                                    #`+ menuName +` ul.items li{padding:3px;padding-left:10px;}
-                                    #`+ menuName +` ul.items li:hover{color:white;background:#284570;border-radius:2px;cursor: pointer;}
-                                    #`+ menuName +` hr{display:block;width:85%;background-color:#E4E4E4;border-color:#E4E4E4;color:#E4E4E4;}
-                                    #`+ menuName +` h2 { padding-left: 22px; font-size: 18px; display: block; background: #3d3d3d; color: #fff; margin: 0px;}
-                                    #`+ menuName +` h3 { padding: 5px 10px; font-size: 16px; display: block; background: #50b013; color: #fff; margin: 0;}
-                                    #`+ menuName +` h4 { padding: 5px 10px; font-size: 16px; display: block; background: #ff4343; color: #fff; margin: 0;}
-                                    #`+ menuName +` p { color: #949494; border-radius: 2px; padding: 3px 3px 3px 10px; margin: 0; pointer-events: unset;}
-                                    #`+ menuName +` input { width:30px;}
-                                </style>
+                        if(targetDom.parent().hasClass('header')){ //show menu
+                            $('#rightMenu').html( `
+                                <h4>TR - Change Type</h4>
+                                <ul class="items">
+                                    <li data="list_array">list_array</li>
+                                    <li data="list_object">list_object</li>
+                                    <li data="one_array">one_array</li>
+                                    <li data="one_object">one_object</li>
+                                </ul>
                             `);
-                            $('#'+ menuName).click(function(){//필수
+                            let type = ''
+                            let trDom = targetDom.parent();
+                            if(trDom.hasClass('one_object')) type = 'one_object';
+                            else if(trDom.hasClass('one_array')) type = 'one_array';
+                            else if(trDom.hasClass('list_object')) type = 'list_object';
+                            else if(trDom.hasClass('list_array')) type = 'list_array';
+                            let typeInMenuDom = $('#rightMenu li[data='+ type +']')
+                            typeInMenuDom.text(typeInMenuDom.text() + ' <-')
+                            $('#rightMenu li').off().click(function(){ // click event
                                 event.preventDefault();
                                 event.stopPropagation();
-                                event.stopImmediatePropagation();
+                                let targetType = targetDom.attr('title')
+                                let activeType = $(this).attr('data');
+                                trDom.removeClass(type).addClass(activeType)
+                                $("#rightMenu").hide();
+                                alert(targetType +' ---> '+ activeType)
                             })
                         }
-                        $('body').on('click',function(){//메뉴외 범위 클릭시 감춤
-                            // event.preventDefault();
-                            // event.stopPropagation();
-                            // event.stopImmediatePropagation();
-                            // console.log(111, menuName)
-                            // $(sel).find('td.select').removeClass('select')
-                            $("#"+ menuName).hide();
-                            $('body').off("click");
-                        });
+                        else if(targetDom.parent().hasClass('data')){ //show menu
+                            $('#rightMenu').html( `
+                                <h3>TD - Change Type</h3>
+                                <ul class="items">
+                                    <li data="string">string</li>
+                                    <li data="number">number</li>
+                                    <li data="boolean">boolean</li>
+                                    <li data="null">null</li>
+                                    <li data="undefined">undefined</li>
+                                    <li data="array">array</li>
+                                    <li data="object">object</li>
+                                </ul>
+                            `);
+                            let type = targetDom.attr('title');
+                            let typeInMenuDom = $('#rightMenu li[data='+ type +']')
+                            typeInMenuDom.text(typeInMenuDom.text() + ' <-')
+                            // console.log(targetDom.attr('title'))
+                            $('#rightMenu li').off().click(function(){ // click event
+                                event.preventDefault();
+                                event.stopPropagation();
+                                let targetType = targetDom.attr('title')
+                                let activeType = $(this).attr('data');
+                                if(targetType != activeType){
+                                    targetDom.attr('title', activeType)
+                                    alert(targetType +' ---> '+ activeType)
+                                }
+                                $("#rightMenu").hide();
+                            })
+                        }
+                        else $('#rightMenu').html('');
+                    } 
+                    else $('#rightMenu').html('');
+                    
+                }
+
+
+                //toTable 우클릭 메뉴
+                function jsonInputMenu(e){
+                    let targetDom = $(e.target)
+                    // if(targetDom.prop('tagName') == 'BUTTON' ){//show menu
+                        $('#rightMenu').html( `
+                            <ul class="items">
+                                <li data="csvTab2json">csv(tab)->json</li>
+                                <li data="csvComma2json">csv(comma)->json</li>
+                                <li data="xml2json">xml->json</li>
+                                <li>------------------------</li>
+                                <li data="json2csvTab">json->csv(tab)</li>
+                                <li data="json2csvComma">json->csv(comma)</li>
+                                <li data="json2xml">json->xml</li>
+                                <li>------------------------</li>
+                                <li data="jsonTranspose">[[],..]: JSON행열전환</li>
+                                <li data="changeArrayObject">[[]/{}]: Array/Object전환</li>
+                                <li data="jsonFormat">JSON Format/Minify</li>
+                                <li data="xmlFormat">XML Format/Minify</li>
+                            </ul>
+                        `);
+                        $('#rightMenu li').off().click(function(){ // click event
+                            event.preventDefault();
+                            event.stopPropagation();
+                            let activeType = $(this).attr('data'); //this is menu, target is dom
+                            console.log(activeType)
+                            if(activeType == 'csvTab2json'){
+                                let arr = $.csv.toArrays($('#jsonInput').val(), {separator:'\t'}); //https://github.com/typeiii/jquery-csv/blob/master/docs/api.md
+                                $('#jsonInput').val(JSON.stringify(arr, null, 2));
+                                $('#json2tableBtn').click();
+                            }
+                            else if(activeType == 'csvComma2json'){
+                                let arr = $.csv.toArrays($('#jsonInput').val(), {separator:','}); //
+                                $('#jsonInput').val(JSON.stringify(arr, null, 2));
+                                $('#json2tableBtn').click();
+                            }
+                            else if(activeType == 'xml2json'){
+                                let xmlText = $('#jsonInput').val();
+                                if(!isJson(xmlText) && xmlText.indexOf('<') == 0) {
+                                    let jsonText = xml2json(xmlText)
+                                    console.log(jsonText)
+                                    $('#jsonInput').val(jsonText);
+                                    // $('#json2tableBtn').click();
+                                }
+                                else alert('XML이 아닙니다.')
+                            }
+                            else if(activeType == 'json2csvTab'){
+                                let text = $('#jsonInput').val();
+                                if(isJson(text)){
+                                    let csvText = $.csv.fromArrays(JSON.parse(text), {separator:'\t'}); //
+                                    $('#jsonInput').val(csvText);
+                                }
+                                else alert('JSON이 아닙니다.')
+                            }
+                            else if(activeType == 'json2csvComma'){
+                                let text = $('#jsonInput').val();
+                                if(isJson(text)){
+                                    let csvText = $.csv.fromArrays(JSON.parse(text), {separator:','}); //
+                                    $('#jsonInput').val(csvText);
+                                }
+                                else alert('JSON이 아닙니다.')
+                            }
+                            else if(activeType == 'json2xml'){
+
+                                let jsonText = $('#jsonInput').val();
+                                if(isJson(jsonText)) {
+                                    let xmlText = json2xml(jsonText);
+                                    if(xmlText != null) $('#jsonInput').val(xmlText);
+                                }
+                                else alert('JSON이 아닙니다.')
+
+
+                            }
+                            else if(activeType == 'jsonTranspose'){
+                                let text = $('#jsonInput').val();
+                                if(isJson(text)) {
+                                    let arr= JSON.parse(text)
+                                    if(typeof arr[0] != 'undefined' && typeof arr[0][0] != 'undefined'){
+                                        arr = transpose(arr);//행열전환
+                                        $('#jsonInput').val(JSON.stringify(arr, null, 2));
+                                        $('#json2tableBtn').click();
+                                    }else{
+                                        alert('정확한 JSON격식이 아닙니다. ex) [[],..]')
+                                    }
+                                }
+                                else alert('JSON이 아닙니다.')
+                            }
+                            else if(activeType == 'changeArrayObject'){
+                                let text = $('#jsonInput').val();
+                                if(isJson(text)) {
+                                    let arr= JSON.parse(text)
+                                    if(typeof arr[0] != 'undefined'){
+                                        if(getType(arr[0]) === 'array') arr = list_int2kv(arr);//object일때
+                                        else if(getType(arr[0]) === 'object')  arr = list_kv2int(arr);
+                                        else {
+                                            console.log(222)
+                                            $("#rightMenu").hide();
+                                            return ;
+                                        }
+                                        if(arr.length > 0){
+                                            $('#jsonInput').val(JSON.stringify(arr, null, 2));
+                                            $('#json2tableBtn').click();
+                                            console.log(111111, getType(arr[0]))
+                                        }
+                                        else alert('데이터 행이 2개 이상이여야 합니다.')
+
+                                    }else{
+                                        alert('정확한 JSON격식이 아닙니다. ex) [[],..]')
+                                    }
+                                }
+                                else alert('JSON이 아닙니다.')
+                            }
+                            else if(activeType == 'jsonFormat'){
+                                let inputDom = $('#jsonInput');
+                                if(inputDom.attr('format') == 'json'){
+                                    $('#jsonInput').format({method: 'jsonmin'});//xml,xmlmin, css,cssmin, json,jsonmin, sql,sqlmin
+                                    $('#jsonInput').removeAttr('format')
+                                } 
+                                else{
+                                    $('#jsonInput').format({method: 'json'});//xml,xmlmin, css,cssmin, json,jsonmin, sql,sqlmin
+                                    inputDom.attr('format','json')
+                                } 
+                            }
+                            else if(activeType == 'xmlFormat'){
+                                let inputDom = $('#jsonInput');
+                                if(inputDom.attr('format') == 'xml'){
+                                    $('#jsonInput').format({method: 'xmlmin'});//xml,xmlmin, css,cssmin, json,jsonmin, sql,sqlmin
+                                    $('#jsonInput').removeAttr('format')
+                                } 
+                                else{
+                                    $('#jsonInput').format({method: 'xml'});//xml,xmlmin, css,cssmin, json,jsonmin, sql,sqlmin
+                                    inputDom.attr('format','xml')
+                                } 
+                            }
+                            $("#rightMenu").hide();
+                        })
+                    // }
+                    // else $('#rightMenu').html('');
+                }
+
+
+
+                //-----------xml (include xml2json.js file)
+                function xml2json(xmlText, fu=2) { let x2js = new X2JS(); return JSON.stringify(x2js.xml_str2json(xmlText),null,fu) }
+                function json2xml(jsonText) { let x2js = new X2JS(); return x2js.json2xml_str($.parseJSON(jsonText)) }
+
+
+
+
+
+        //LIB: 오른쪽 메뉴
+        function makeContextMenu(sel='#excelTableBox', callback, menuName='rightMenu'){
+            // console.log('makeContextMenu')
+            // setTimeout(function(){
+                $(sel).on("contextmenu",function(e){
+                    e.preventDefault();
+                    if( $('#'+ menuName).length == 0) {
+
+                        $('body').append(`
+                            <div id='`+ menuName +`'></div>
+                            <style id="`+ menuName +`Style">
+                                #`+ menuName +` {width: 220px; display:none; position:fixed;border:1px solid #B2B2B2;background:#F9F9F9;box-shadow:3px 3px 2px #E9E9E9;border-radius:4px; user-select: none; z-index: 1000;}
+                                #`+ menuName +` > div{padding-left:10px;}
+                                #`+ menuName +` ul.items{list-style:none;margin:0px;margin-top:4px;padding-left:5px;padding-right:5px;padding-bottom:3px;font-size:17px;color:#333333;}
+                                #`+ menuName +` ul.items li{padding:3px;padding-left:10px;}
+                                #`+ menuName +` ul.items li:hover{color:white;background:#284570;border-radius:2px;cursor: pointer;}
+                                #`+ menuName +` hr{display:block;width:85%;background-color:#E4E4E4;border-color:#E4E4E4;color:#E4E4E4;}
+                                #`+ menuName +` h2 { padding-left: 22px; font-size: 18px; display: block; background: #3d3d3d; color: #fff; margin: 0px;}
+                                #`+ menuName +` h3 { padding: 5px 10px; font-size: 16px; display: block; background: #50b013; color: #fff; margin: 0;}
+                                #`+ menuName +` h4 { padding: 5px 10px; font-size: 16px; display: block; background: #ff4343; color: #fff; margin: 0;}
+                                #`+ menuName +` p { color: #949494; border-radius: 2px; padding: 3px 3px 3px 10px; margin: 0; pointer-events: unset;}
+                                #`+ menuName +` input { width:30px;}
+                            </style>
+                        `);
+                        $('#'+ menuName).click(function(){//필수
+                            event.preventDefault();
+                            event.stopPropagation();
+                            event.stopImmediatePropagation();
+                        })
+                    }
+                    $('body').on('click',function(){//메뉴외 범위 클릭시 감춤
+                        // event.preventDefault();
+                        // event.stopPropagation();
+                        // event.stopImmediatePropagation();
+                        // console.log(111, menuName)
                         // $(sel).find('td.select').removeClass('select')
-                        if(typeof callback == 'function') callback(e);
-
-                        // if($('#'+ menuName).html() == '' ) $('#'+ menuName +'Style').attr('media', 'max-width: 1px')
-                        // else $('#'+ menuName +'Style').removeAttr('media')
-                        if($('#'+ menuName).html() == '' ){ $('#'+ menuName).hide(); return; }
-                        else $('#'+ menuName).show();
-
-                        //x,y축
-                        let menuWidth = $('#'+ menuName).width();
-                        let menuHeight = $('#'+ menuName).height();
-                        let pointX= e.pageX + menuWidth > window.innerWidth ? e.pageX - menuWidth : e.pageX;
-                        let pointY= e.pageY + menuHeight > window.innerHeight ? e.pageY - menuHeight : e.pageY;
-                        $("#"+ menuName).css("left", pointX).css("top", pointY).show()
-                        // console.log('--1111---', e.target, e, e.pageX, e.pageY, e.offsetX, e.offsetY, e.pageX + menuWidth,  e.pageY + menuHeight, window.innerWidth, window.innerHeight);
-
+                        $("#"+ menuName).hide();
+                        $('body').off("click");
                     });
-                // },300)
-            }
+                    // $(sel).find('td.select').removeClass('select')
+                    if(typeof callback == 'function') callback(e);
+
+                    // if($('#'+ menuName).html() == '' ) $('#'+ menuName +'Style').attr('media', 'max-width: 1px')
+                    // else $('#'+ menuName +'Style').removeAttr('media')
+                    if($('#'+ menuName).html() == '' ){ $('#'+ menuName).hide(); return; }
+                    else $('#'+ menuName).show();
+
+                    //x,y축
+                    let menuWidth = $('#'+ menuName).width();
+                    let menuHeight = $('#'+ menuName).height();
+                    let pointX= e.pageX + menuWidth > window.innerWidth ? e.pageX - menuWidth : e.pageX;
+                    let pointY= e.pageY + menuHeight > window.innerHeight ? e.pageY - menuHeight : e.pageY;
+                    $("#"+ menuName).css("left", pointX).css("top", pointY).show()
+                    // console.log('--1111---', e.target, e, e.pageX, e.pageY, e.offsetX, e.offsetY, e.pageX + menuWidth,  e.pageY + menuHeight, window.innerWidth, window.innerHeight);
+
+                });
+            // },300)
+        }
 
 
 
@@ -813,11 +1209,10 @@
 
 
 		//------------------------------------공통 
-		// function emptyVal(str, resultVal='---'){ return (typeof str == 'undefined') ? resultVal : str; }
-        // function getType(data){  if(data instanceof Array) return 'array'; else if(data === null) return 'null'; else return typeof data; }
-        // function isJson(str) { try { JSON.parse(str); } catch (e) { return false; } return true; }
-
-
+		function emptyVal(str, resultVal='---'){ return (typeof str == 'undefined') ? resultVal : str; }
+        function getType(data){  if(data instanceof Array) return 'array'; else if(data === null) return 'null'; else return typeof data; }
+        function isJson(str) { try { JSON.parse(str); } catch (e) { return false; } return true; }
+        function htmlDecode(encodedString) { if(encodedString.indexOf('&') < 0) return encodedString; let textArea = document.createElement('textarea'); textArea.innerHTML = encodedString; return textArea.value; }
     </script>
 
 
