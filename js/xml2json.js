@@ -583,3 +583,12 @@
 		};	
 	}
 }))
+
+
+
+
+
+//-----------xml (include xml2json.js file)
+function xml2json(xmlText, fu=2) { let x2js = new X2JS(); return JSON.stringify(x2js.xml_str2json(xmlText),null,fu) }
+function json2xml(jsonText) { let x2js = new X2JS(); return x2js.json2xml_str($.parseJSON(jsonText)) }
+

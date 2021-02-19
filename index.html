@@ -12,8 +12,9 @@
     <script type="text/javascript" src="js/date.js"></script>
     <script type="text/javascript" src="js/matrix.js"></script>
     <script type="text/javascript" src="js/tableToExcel_fun.js"></script>
-    <script type="text/javascript" src="js/xml2json.js"></script>
+    <script type="text/javascript" src="js/xml2json2.js"></script>
     <script type="text/javascript" src="js/jquery.format.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.18.0/parser.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js"></script>
     <script>  $(function(){ new ClipboardJS('.clipboardBtn');  }); </script>    
     <style id="css1">
@@ -1107,13 +1108,6 @@
                     // }
                     // else $('#rightMenu').html('');
                 }
-
-
-
-                //-----------xml (include xml2json.js file)
-                function xml2json(xmlText, fu=2) { let x2js = new X2JS(); return JSON.stringify(x2js.xml_str2json(xmlText),null,fu) }
-                function json2xml(jsonText) { let x2js = new X2JS(); return x2js.json2xml_str($.parseJSON(jsonText)) }
-
 
 
 
